@@ -1,0 +1,24 @@
+name: farside-btc-etf-daily
+on:
+  schedule:
+    - cron: "15 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pandas lxml html5lib
+      - name: Run scraper
+        run: python scripts/farside_btc_etf.py
+      - name: Commit CSV
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add projects/farside-btc-etf/processed
+          git commit -m "daily update: farside btc etf" || echo "No changes to commit"
+          git push
